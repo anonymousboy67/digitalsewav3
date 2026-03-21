@@ -193,16 +193,16 @@ export default function RegisterPage() {
                 <Select onValueChange={(v: string) => updateForm("district", v)}>
                   <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
                   <SelectContent>
-                    {DISTRICTS.slice(0, 15).map((d) => (
+                    {DISTRICTS.map((d) => (
                       <SelectItem key={d} value={d}>{d}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
+              {/* <div className="space-y-1">
                 <Label>City *</Label>
                 <Input placeholder="Kathmandu" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
-              </div>
+              </div> */}
             </div>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setStep(1)} className="gap-2">
