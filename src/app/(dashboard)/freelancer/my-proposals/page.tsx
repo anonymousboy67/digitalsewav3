@@ -23,7 +23,6 @@ export default function MyProposalsPage() {
 
   useEffect(() => {
     if (!user) return;
-<<<<<<< HEAD
     setLoading(true);
     fetch(`/api/proposals?freelancerId=${user.id}`)
       .then((r) => r.json())
@@ -31,23 +30,8 @@ export default function MyProposalsPage() {
         setProposals(d.proposals || []);
       })
       .catch(() => setProposals([]))
-=======
-    // Fetch proposals by getting all projects with the user's proposals
-    // We'll use a simpler approach - get all projects and filter
-    // For now fetch active projects to get proposal data
-    setLoading(true);
-    // Use a custom endpoint pattern - GET proposals by freelancer
-    fetch(`/api/projects?limit=50`)
-      .then((r) => r.json())
-      .then(async (d) => {
-        // Then for each open project, check proposals for this user
-        // Better: fetch all proposals for this freelancer from projects
-        const allProposals: IProposal[] = [];
-        // Simplified - this would ideally be a dedicated endpoint
-        setProposals(allProposals);
-      })
->>>>>>> c6d027e42bb6312f912e09cf388d23755169bb84
       .finally(() => setLoading(false));
+
   }, [user]);
 
   const filtered = filter === "all" ? proposals : proposals.filter((p) => p.status === filter);
