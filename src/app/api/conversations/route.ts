@@ -41,7 +41,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json({ conversation: existing });
+      const populated = await existing.populate([
+        { path: "participants", select: "name avatar role" },
+        { path: "project", select: "title" },
+      ]);
+      return NextResponse.json({ conversation: populated });
     }
 
     const conversation = await Conversation.create({
