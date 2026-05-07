@@ -29,9 +29,12 @@ export default function RegisterPage() {
     name: "", email: "", password: "", confirmPassword: "", phone: "",
     district: "", city: "", hourlyRate: "", bio: "", panNumber: "",
   });
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  const updateForm = (field: string, value: string) =>
+  const updateForm = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: false }));
+  };
 
   const addSkill = (skill: string) => {
     if (skill && !selectedSkills.includes(skill)) {
@@ -166,7 +169,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Full Name *</Label>
-                <Input placeholder="Aashish Adhikari" value={formData.name} onChange={(e) => updateForm("name", e.target.value)} />
+                <Input placeholder="Aashish Adhikari" value={formData.name} onChange={(e) => updateForm("name", e.target.value)} className={errors.name ? "border-red-500 focus-visible:ring-red-500" : ""} />
               </div>
               <div className="space-y-1">
                 <Label>Phone</Label>
@@ -175,23 +178,23 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-1">
               <Label>Email Address *</Label>
-              <Input type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} />
+              <Input type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className={errors.email ? "border-red-500 focus-visible:ring-red-500" : ""} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Password *</Label>
-                <Input type="password" placeholder="••••••••" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} />
+                <Input type="password" placeholder="••••••••" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} className={errors.password ? "border-red-500 focus-visible:ring-red-500" : ""} />
               </div>
               <div className="space-y-1">
                 <Label>Confirm Password *</Label>
-                <Input type="password" placeholder="••••••••" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} />
+                <Input type="password" placeholder="••••••••" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} className={errors.confirmPassword ? "border-red-500 focus-visible:ring-red-500" : ""} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>District *</Label>
-                <Select onValueChange={(v: string) => updateForm("district", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
+                <Select value={formData.district} onValueChange={(v: string) => updateForm("district", v)}>
+                  <SelectTrigger className={errors.district ? "border-red-500 focus-visible:ring-red-500" : ""}><SelectValue placeholder="Select district" /></SelectTrigger>
                   <SelectContent>
                     {DISTRICTS.map((d) => (
                       <SelectItem key={d} value={d}>{d}</SelectItem>
@@ -200,7 +203,7 @@ export default function RegisterPage() {
                 </Select>
               </div>
               {/* <div className="space-y-1">
-                <Label>City *</Label>
+                <Label>City</Label>
                 <Input placeholder="Kathmandu" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
               </div> */}
             </div>
@@ -210,10 +213,30 @@ export default function RegisterPage() {
               </Button>
               <Button
                 onClick={() => {
-                  if (!formData.name || !formData.email || !formData.password || !formData.district || !formData.city) {
-                    toast.error("Please fill all required fields");
+                  const required: Record<string, string> = {
+                    name: "Full Name",
+                    email: "Email Address",
+                    password: "Password",
+                    confirmPassword: "Confirm Password",
+                    district: "District",
+                  };
+                  const missing = Object.entries(required).filter(([key]) => !formData[key as keyof typeof formData]);
+                  if (missing.length > 0) {
+                    setErrors(Object.fromEntries(missing.map(([key]) => [key, true])));
+                    const labels = missing.map(([, label]) => label);
+                    toast.error(
+                      labels.length === 1
+                        ? `${labels[0]} is required`
+                        : `Please fill: ${labels.join(", ")}`
+                    );
                     return;
                   }
+                  if (formData.password !== formData.confirmPassword) {
+                    setErrors({ password: true, confirmPassword: true });
+                    toast.error("Passwords don't match");
+                    return;
+                  }
+                  setErrors({});
                   setStep(3);
                 }}
                 className="flex-1 bg-teal-600 hover:bg-teal-700"
